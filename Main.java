@@ -30,13 +30,13 @@ public class Main {
 					estacionamento.entrarVeiculo(); 
 					break;
 				case 2:
-					//estacionamento.sairVeiculo();
+					estacionamento.sairVeiculo();
 					break;
 				case 3: 
 					//estacionamento.consultarVeiculo();
 					break;
 				case 4: 
-					//estacionamento.excluirVeiculo();
+					//estacionamento.desativarRegistroVeiculo();
 					break;
 				case 5:
 					//estacionamento.emitirFaturamento();
