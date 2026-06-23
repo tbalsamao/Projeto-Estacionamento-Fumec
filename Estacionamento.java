@@ -1,8 +1,4 @@
 import java.io.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
 public class Estacionamento {
 
 	// Vetores de marcas
@@ -100,7 +96,7 @@ public class Estacionamento {
 		case "GN" :
 			return "Grande e Nacional";
 		case "PN" :
-			return "PEqueno e Nacional";
+			return "Pequeno e Nacional";
 		default:
 			return "ERRO";
 		}
@@ -148,7 +144,7 @@ public class Estacionamento {
 			ativo = 'S';
 			codEst = codEstChave;
 			System.out.println("Digite a placa do veículo no formato XXX0000 (FIM para encerrar): ");
-			placa = Main.leia.next(); // Leitura da placa
+			placa = Main.leia.next();
 			
 			if (placa.equalsIgnoreCase("FIM")) {
 				break;
@@ -217,93 +213,83 @@ public class Estacionamento {
 			}
 			
 			// Validar dataOperacao
-			String dataDigitada;
 			while (true) {
-				System.out.println("Digite a data da entrada (DD/MM/AAAA: " );
-				dataDigitada = Main.leia.nextLine();
-				if (!dataEhValida(dataDigitada)) {
-					System.out.println("Data Inválida");
+				System.out.print("Digite a data da entrada (DD/MM/AAAA): ");
+				dataOperacao = Main.leia.nextLine();
+				if (!dataEhValida(dataOperacao)) {
+					System.out.println("Data Inválida!");
+				} else {
+					break;
 				}
-				break;
 			}
 			
 			// Validar ModeloCor
-			String modeloCorDigitado;
 			while (true) {
 				System.out.print("Digite o modelo e a cor do veículo (mínimo 10 caracteres): ");
-				modeloCorDigitado = Main.leia.nextLine();
-				if (modeloCorDigitado.length() < 10) {
+				modeloCor = Main.leia.nextLine();
+				if (modeloCor.length() < 10) {
 					System.out.println("Erro! Pelo menos 10 caracteres!");
+				} else {
+					break;
 				}
-				break;
 			}
+			
+			// Validar Marca
+			int indiceMarcaVeic = -1;
+			do {
+				System.out.print("Digite a sigla da marca do veículo (ex: VW, FI): ");
+				marca = Main.leia.nextLine().toUpperCase();
+				indiceMarcaVeic = pesquisarMarcaVeiculo(marca);
+				if (indiceMarcaVeic == -1) {
+					System.out.println("Não encontrou a marca do veículo!");
+				} else {
+					System.out.println("A marca do veículo é " + descricaoMarca[indiceMarcaVeic]);
+				}
+			} while (indiceMarcaVeic == -1);
+
+			// Validar Categoria
+			String descCategoria = "ERRO";
+			do {
+				System.out.print("Digite a categoria do veículo (GI, PI, GN, PN): ");
+				categoriaVeiculo = Main.leia.nextLine().toUpperCase();
+				descCategoria = consistirCategoria(categoriaVeiculo);
+				if (descCategoria.equals("ERRO")) {
+					System.out.println("Categoria Inválida!");
+				} else {
+					System.out.println("Descrição: " + descCategoria);
+				}
+			} while (descCategoria.equals("ERRO"));
+
+			// Validar Hora
+			while (true) {
+				System.out.print("Digite a hora de entrada (HH:MM): ");
+				horaEntrada = Main.leia.nextLine();
+				if (!horaEhValida(horaEntrada)) {
+					System.out.println("Hora Inválida!");
+				} else {
+					break;
+				}
+			}
+
+			tipoOperacao = 'E';
+			horaSaida = "";
+			valorPago = 0;
+
+			salvarRegistroVeiculo();
 		}
 	}
-	
-	// Método de validação de dados de entrada desenvolvido por Cachaça e João
-	public void validar() {
-		boolean valida = false;
-		do {
-			System.out.println("Digite a data de entrada do veículo DD/MM/AAAA: ");
-			dataOperacao = Main.leia.nextLine();
-			try {
-				DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-				LocalDate.parse(dataOperacao, formato);
-				valida = true;
-			} catch (DateTimeParseException e) {
-				System.out.println("Data Inválida!");
-			}
-		} while (!valida);
 
-		tipoOperacao = 'E';
-
-		System.out.println("Digite o Modelo/Cor do veículo: ");
-		modeloCor = Main.leia.nextLine();
-
-		// Lógica de pesquisa da marca desenvolvida pela Sarah
-		int indiceMarcaVeic = -1;
-		do {
-			System.out.println("Digite a marca do veículo: ");
-			marca = Main.leia.nextLine();
-			indiceMarcaVeic = pesquisarMarcaVeic(marca);
-			if (indiceMarcaVeic == -1) {
-				System.out.println("Não encontrou a marca do veículo!");
-			} else {
-				System.out.println("A marca do veículo é " + descricaoMarca[indiceMarcaVeic]);
-				marca = descricaoMarca[indiceMarcaVeic];
-			}
-		} while (indiceMarcaVeic == -1);
-
-		System.out.println("Digite a categoria do veículo: ");
-		categoriaVeiculo = Main.leia.nextLine();
-
-		System.out.println("Digite a hora de entrada do veículo: ");
-		horaEntrada = Main.leia.nextLine();
-
-		horaSaida = "";
-		valorPago = 0;
-
-		// Observação: os alunos não chamaram salvarRegistroVeiculo() aqui, portanto a entrada não é gravada em disco.
-	}
-
-	public static int pesquisarMarcaVeic(String codMarca) {
-		for (byte x = 0; x < codMarcaVeic.length; x++) {
-			if (codMarca.equals(codMarcaVeic[x])) {
-				return x;
-			}
-		}
-		return -1;
-	}
-
+	// ****************** Pesquisar Marca do Veículo ******************
 	public int pesquisarMarcaVeiculo(String codMarcaPesq) {
 		for (byte x = 0; x < codMarcaVeic.length; x++) {
-			if (codMarcaVeic.equals(codMarcaVeic[x])) {
+			if (codMarcaPesq.equals(codMarcaVeic[x])) {
 				return x;
 			}
 		}
 		return -1;
 	}
 	
+	// **************** Calcular Valor a pagar ********************
 	public float calcularValorAPagar(String horaEntrada, String horaSaida, String categoriaVeiculo) {
 		int he = Integer.parseInt(horaEntrada.substring(0, 2));
 		int me = Integer.parseInt(horaEntrada.substring(3, 5));
@@ -336,7 +322,7 @@ public class Estacionamento {
 			}
 		}
 		
-		return (hs - he + (ms - me) / 60) *vlrHora;
+		return (hs - he + (ms - me) / 60.0f) * vlrHora;
 	}
 
 	// ***********************   REGISTRAR SAÍDA DO VEÍCULO   *****************************
@@ -378,26 +364,47 @@ public class Estacionamento {
 			System.out.println("-------------------");
 				
 			// Confirmação da saída e pagamento
-//			char confirmacao;
-//			do {
-//				System.out.println("Confirma a saída do veículo? (S/N): ");
-//					confirmacao = Main.leia.next().charAt(0);
-//			} while (confirmacao != 'S' && confirmacao != 'N');
-//				
-//			if (confirmacao == 'S') {
-//				desativarRegistroVeiculo(posicaoRegistro);
-//					
-//				ativo = 'S';
-//				tipoOperacao = 'S';
-//				horaSaida = horaSaidaDigitada;
-//				valorPago = valorPagoCalculado;
-//					
-//				salvarRegistroVeiculo();
-//				System.out.println("Saída registrada com sucesso");
-//			} else {
-//				System.out.println("Saída do veículo cancelada");
-//			}
-//			break;
+			// Pedir hora de saída
+			String horaSaidaDigitada;
+			while (true) {
+				System.out.print("Digite a hora de saída (HH:MM): ");
+				horaSaidaDigitada = Main.leia.nextLine();
+				if (!horaEhValida(horaSaidaDigitada)) {
+					System.out.println("Hora Inválida!");
+				} else if (!horaSaidaMaiorQueEntrada(horaEntrada, horaSaidaDigitada)) {
+					System.out.println("Hora de saída deve ser maior que a hora de entrada (" + horaEntrada + ")!");
+				} else {
+					break;
+				}
+			}
+			
+			float valorPagoCalculado = calcularValorAPagar(horaEntrada, horaSaidaDigitada, categoriaVeiculo);
+			System.out.println("Valor a pagar: R$ " + String.format("%.2f", valorPagoCalculado));
+				
+			// Confirmação da saída e pagamento
+			char confirmacao = ' ';
+			do {
+				System.out.print("Confirma a saída do veículo? (S/N): ");
+				String input = Main.leia.nextLine().toUpperCase();
+				if (input.length() > 0) {
+					confirmacao = input.charAt(0);
+				}
+			} while (confirmacao != 'S' && confirmacao != 'N');
+				
+			if (confirmacao == 'S') {
+				desativarRegistroVeiculo(posicaoRegistro);
+					
+				ativo = 'S';
+				tipoOperacao = 'S';
+				horaSaida = horaSaidaDigitada;
+				valorPago = valorPagoCalculado;
+					
+				salvarRegistroVeiculo();
+				System.out.println("Saída registrada com sucesso!");
+			} else {
+				System.out.println("Saída do veículo cancelada.");
+			}
+			break;
 		} while (!codEstChave.equalsIgnoreCase("FIM"));
 	}
 	
@@ -423,7 +430,7 @@ public class Estacionamento {
 	}
 
 	// ***********************  CONSULTA  *****************************
-	public void consultar() {
+	public void consultarVeiculo() {
 		RandomAccessFile arqEst;
 		byte opcao;
 		String codEstChave;
@@ -603,7 +610,7 @@ public class Estacionamento {
 	}
 	
 	// ***********************  EXCLUSAO  *****************************
-	public void excluir() {
+	public void excluirVeiculo() {
 		String codEstChave;
 		char confirmacao;
 		long posicaoRegistro = 0;
@@ -654,7 +661,7 @@ public class Estacionamento {
 				confirmacao = Main.leia.next().charAt(0);
 				confirmacao = Character.toUpperCase(confirmacao);
 				if (confirmacao == 'S') {
-					desativarEstacionamento(posicaoRegistro);
+					desativarRegistroVeiculo(posicaoRegistro);
 					System.out.println("Registro excluido com sucesso !\n");
 				}
 			} while (confirmacao != 'S' && confirmacao != 'N');
@@ -662,20 +669,9 @@ public class Estacionamento {
 		} while (!codEst.equals("FIM"));
 	}
 
-	public void desativarEstacionamento(long posicao) {
-		try {
-			RandomAccessFile arqEst = new RandomAccessFile("EST.DAT", "rw");
-			arqEst.seek(posicao);
-			arqEst.writeChar('N');
-			arqEst.close();
-		} catch (IOException e) {
-			System.out.println("Erro na abertura do arquivo  -  programa sera finalizado");
-			System.exit(0);
-		}
-	}
-	
+
 	// ***********************  RELATORIO DE FATURAMENTO  *****************************
-	public void relatorioFaturamento() {
+	public void emitirFaturamento() {
 		RandomAccessFile arqEst;
 		float totalFaturado = 0;
 		String placaFiltro;

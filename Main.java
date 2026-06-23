@@ -33,13 +33,13 @@ public class Main {
 					estacionamento.sairVeiculo();
 					break;
 				case 3: 
-					//estacionamento.consultarVeiculo();
+					estacionamento.consultarVeiculo();
 					break;
 				case 4: 
-					//estacionamento.desativarRegistroVeiculo();
+					estacionamento.excluirVeiculo();
 					break;
 				case 5:
-					//estacionamento.emitirFaturamento();
+					estacionamento.emitirFaturamento();
 			}
     	} while ( opcao != 0 );
     	leia.close();
